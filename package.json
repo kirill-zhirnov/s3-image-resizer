@@ -1,0 +1,28 @@
+{
+  "name": "boundless-media-server",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "repository": "git@github.com:kirill-zhirnov/media-server.git",
+  "author": "Kirill Zhirnov <ekvixgroup@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.24.0",
+    "@types/express": "^4.17.13",
+    "@types/node": "^16.4.11",
+    "@typescript-eslint/eslint-plugin": "^4.29.0",
+    "@typescript-eslint/parser": "^4.29.0",
+    "dotenv": "^10.0.0",
+    "eslint": "^7.32.0",
+    "express": "^4.17.1",
+    "node-imagemagick": "^0.1.8",
+    "pm2": "^5.1.0",
+    "simple-registry": "^0.2.2",
+    "ts-node": "^10.1.0",
+    "typescript": "^4.3.5"
+  },
+  "engines": {
+    "node": "14.x",
+    "yarn": "1.x"
+  }
+}
