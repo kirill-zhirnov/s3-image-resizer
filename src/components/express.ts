@@ -1,5 +1,6 @@
 import registry from 'simple-registry';
-import express, {Application, Request, Response} from 'express';
+import express, {Application, NextFunction, Request, Response} from 'express';
+import ThumbAction from "../actions/thumbAction";
 
 
 export class ExpressBaker {
@@ -26,15 +27,12 @@ export class ExpressBaker {
 	}
 
 	setupRoutes(): void {
-		// /thumb/i15/images/asdadad.png?q=quality&width=100&height=100&ration=2/3
-		//save thumbs as: /i-n/runtime/localPath.png
-		this.app.get('/thumb', (req: Request, res: Response) => {
-			res.send('thumb is coming soon :)');
+		this.app.get('/thumb/:instance/:imgPath(*)', async (req: Request, res: Response, next: NextFunction) => {
+			const thumbAction = new ThumbAction(req, res, next);
+			await thumbAction.run();
 		});
 
-		this.app.use((req: Request, res: Response) => {
-			res.status(404).send('Not found' );
-		});
+		this.app.use((req: Request, res: Response) => res.status(404).send('Not found' ));
 	}
 
 	// setupStatic(): void {

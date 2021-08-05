@@ -4,21 +4,15 @@ const rootPath = path.dirname(path.dirname(__filename));
 module.exports = {
 	apps: [
 		{
-			name: 'node-dev',
+			name: 'media-server-dev',
 			cwd: rootPath,
-			script: './src/server.ts',
+			script: './src/index.ts',
 			instances: 2,
 			exec_mode: 'cluster',
 			// exec_mode: 'fork',
 			merge_logs: true,
 			watch: [
-				'./src/server.ts',
-				'./src/server/**/*.ts',
-				'./src/server/**/*.tsx',
-				// './src/client/**/*.ts',
-				// './src/client/**/*.tsx',
-				'./src/@types/**/*.ts',
-				'./src/i18n/en.json'
+				'./src/**/*.ts',
 			],
 			ignore_watch: [
 				'node_modules',
