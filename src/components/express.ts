@@ -27,7 +27,7 @@ export class ExpressBaker {
 	}
 
 	setupRoutes(): void {
-		this.app.get('/thumb/:instance/:imgPath(*)', async (req: Request, res: Response, next: NextFunction) => {
+		this.app.get('/thumb/:imgPath(*)', async (req: Request, res: Response, next: NextFunction) => {
 			const thumbAction = new ThumbAction(req, res, next);
 			await thumbAction.run();
 		});

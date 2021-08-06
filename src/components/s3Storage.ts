@@ -1,27 +1,51 @@
-import {S3} from '@aws-sdk/client-s3';
+import {S3, PutObjectCommandInput} from '@aws-sdk/client-s3';
+import {ReadStream, WriteStream} from 'fs';
 
 export default class S3Storage {
 	protected client?: S3;
 	protected bucket: string;
-	protected folderPrefix?: string;
 
-	constructor(
-		protected instanceId: number
-	) {
+	constructor() {
 		this.bucket = process.env.S3_BUCKET!;
+	}
 
-		if (process.env.S3_FOLDER_PREFIX) {
-			this.folderPrefix = process.env.S3_FOLDER_PREFIX;
+	async downloadFile(writeStream: WriteStream, key: string) {
+		const data = await this.getClient().getObject({
+			Bucket: this.bucket,
+			Key: key
+		});
 
-			if (!this.folderPrefix.endsWith('/'))
-				this.folderPrefix += '/';
+		const outPromise = new Promise<void>((resolve) => {
+			writeStream.on('finish', () => resolve());
+		});
+
+		if (data?.Body) {
+			//@ts-ignore
+			data.Body.pipe(writeStream);
+
+			return outPromise;
+		} else {
+			throw new Error('DownloadFile: body is empty.');
 		}
+	}
+
+	async uploadFile(stream: ReadStream, Key: string, props: IS3UploadProps = {}) {
+		const input: PutObjectCommandInput = {
+			Body: stream,
+			Bucket: this.bucket,
+			Key
+		};
+
+		if (props.contentType)
+			input.ContentType = props.contentType;
+
+		await this.getClient().putObject(input);
 	}
 
 	async listObjects(prefix: string) {
 		return await this.getClient().listObjectsV2({
 			Bucket: this.bucket,
-			Prefix: this.makeObjectKeyByPath(prefix)
+			Prefix: prefix
 		});
 	}
 
@@ -39,14 +63,8 @@ export default class S3Storage {
 
 		return this.client;
 	}
+}
 
-	makeObjectKeyByPath(localPath: string): string {
-		let key = `i${this.instanceId}/${localPath}`;
-
-		if (this.folderPrefix) {
-			key = `${this.folderPrefix}${key}`;
-		}
-
-		return key;
-	}
+export interface IS3UploadProps {
+	contentType?: string;
 }

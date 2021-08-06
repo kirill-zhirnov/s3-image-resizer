@@ -1,5 +1,6 @@
 import fs from 'fs';
 import registry from 'simple-registry';
+import imageMagick from 'node-imagemagick';
 
 export class Bootstrap {
 	constructor(public rootPath: string) {}
@@ -10,6 +11,16 @@ export class Bootstrap {
 		}
 
 		registry.set('rootPath', this.rootPath);
+
+		if (process.env.IM_CONVERT) {
+			//@ts-ignore
+			imageMagick.convert.path = process.env.IM_CONVERT;
+		}
+
+		if (process.env.IM_IDENTIFY) {
+			//@ts-ignore
+			imageMagick.identify.path = process.env.IM_IDENTIFY;
+		}
 	}
 }
 

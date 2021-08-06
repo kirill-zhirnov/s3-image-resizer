@@ -8,16 +8,17 @@ export default class ThumbAction extends BasicAction{
 		const params = this.validateParams();
 		const query = this.validateQuery();
 
-		const thumbnail = new Thumbnail(params.instanceId, params.imgPath, query.mode, query['max-size']);
-		const thumb = await thumbnail.makeThumb();
+		const thumbnail = new Thumbnail(params.imgPath, query.mode, query['max-size']);
+		const thumb = await thumbnail.getThumb();
 
+		// this.response.removeHeader('Cache-Control');
+		this.response.sendFile(thumb.absolutePath);
 
-		this.response.send('soon :)');
+		await Promise.all(thumbnail.getBackgroundPromises());
 	}
 
 	protected validateParams(): IThumbParams {
 		const schema = Joi.object({
-			instance: Joi.string().pattern(/^i\d+$/).required(),
 			imgPath: Joi.string().required().replace(/\.\./g, '')
 		});
 
@@ -27,11 +28,9 @@ export default class ThumbAction extends BasicAction{
 			console.error(`validateParams: ${error!.details[0].message}`, this.request.params);
 			throw new HttpError('Incorrect input params', 400);
 		} else {
-			const instanceId = parseInt(value.instance.substr(1));
 			const imgPath = value.imgPath;
 
 			return {
-				instanceId,
 				imgPath
 			};
 		}
@@ -59,6 +58,5 @@ interface IThumbQuery {
 }
 
 interface IThumbParams {
-	instanceId: number;
 	imgPath: string;
 }
