@@ -1,7 +1,7 @@
 import BasicAction from './basicAction';
 import Joi from 'joi';
 import HttpError from '../errors/httpError';
-import Thumbnail, {TThumbMode} from '../components/thumbnail';
+import Thumbnail, {TThumbMode, TThumbQuality, TThumbRatio} from '../components/thumbnail';
 
 export default class ThumbAction extends BasicAction{
 	async process() {
@@ -9,6 +9,24 @@ export default class ThumbAction extends BasicAction{
 		const query = this.validateQuery();
 
 		const thumbnail = new Thumbnail(params.imgPath, query.mode, query['max-size']);
+		if (query.q)
+			thumbnail.setQuality(query.q);
+
+		if (query.grayscale)
+			thumbnail.setGrayscale(true);
+
+		if (query.blur)
+			thumbnail.setBlur(query.blur);
+
+		if (query.ratio)
+			thumbnail.setRatio(query.ratio);
+
+		if (query.pad)
+			thumbnail.setPad(true);
+
+		if (query.bg)
+			thumbnail.setBackground(query.bg);
+
 		const thumb = await thumbnail.getThumb();
 
 		// this.response.removeHeader('Cache-Control');
@@ -39,7 +57,13 @@ export default class ThumbAction extends BasicAction{
 	protected validateQuery(): IThumbQuery {
 		const schema = Joi.object({
 			mode: Joi.string().valid('scale').required(),
-			'max-size': Joi.number().integer().required().min(1).max(2000)
+			'max-size': Joi.number().integer().required().min(1).max(2000),
+			q: Joi.string().valid('low', 'normal', 'high'),
+			grayscale: Joi.number().integer(),
+			blur: Joi.number().integer().min(0).max(15),
+			ratio: Joi.string().valid(...Object.keys(TThumbRatio)),
+			pad: Joi.number().integer(),
+			bg: Joi.string().pattern(/^[a-z0-9]{6}$/i)
 		});
 
 		const {value, error} = schema.validate(this.request.query);
@@ -55,6 +79,12 @@ export default class ThumbAction extends BasicAction{
 interface IThumbQuery {
 	mode: TThumbMode;
 	'max-size': number;
+	q?: TThumbQuality;
+	grayscale?: number;
+	pad?: number;
+	blur?: number;
+	ratio?: TThumbRatio;
+	bg?: string;
 }
 
 interface IThumbParams {

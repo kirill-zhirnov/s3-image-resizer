@@ -1,13 +1,17 @@
-import {TThumbRatio} from '../thumbnail';
+import {TThumbQuality, TThumbRatio} from '../thumbnail';
 import {getImgSize} from '../imageUtils';
+import path from 'path';
 
 export default abstract class BasicConvert {
+	protected thumbExt: string;
 	protected cmdArgs: string[] = [];
 	protected maxSize?: number;
-	protected quality?: number;
+	protected quality?: TThumbQuality;
 	protected ratio?: TThumbRatio;
 	protected background?: string;
 	protected pad: boolean = false;
+	protected grayscale: boolean = false;
+	protected blur?: number;
 
 	protected originalSize?: IImgSize;
 	protected thumbSize?: IImgSize;
@@ -15,7 +19,9 @@ export default abstract class BasicConvert {
 	constructor(
 		protected originalPath: string,
 		protected thumbPath: string
-	) {}
+	) {
+		this.thumbExt = path.extname(this.thumbPath).toLowerCase();
+	}
 
 	abstract make(): Promise<void>;
 
@@ -34,7 +40,7 @@ export default abstract class BasicConvert {
 		this.cmdArgs = this.cmdArgs.concat(args);
 	}
 
-	setRatio(value: TThumbRatio) {
+	setRatio(value: TThumbRatio|undefined) {
 		this.ratio = value;
 		return this;
 	}
@@ -44,18 +50,28 @@ export default abstract class BasicConvert {
 		return this;
 	}
 
-	setQuality(value: number) {
+	setQuality(value: TThumbQuality|undefined) {
 		this.quality = value;
 		return this;
 	}
 
-	setBackground(value: string) {
+	setBackground(value: string|undefined) {
 		this.background = value;
 		return this;
 	}
 
 	setPad(value: boolean) {
 		this.pad = value;
+		return this;
+	}
+
+	setGrayscale(value: boolean) {
+		this.grayscale = value;
+		return this;
+	}
+
+	setBlur(value: number|undefined) {
+		this.blur = value;
 		return this;
 	}
 
@@ -82,6 +98,61 @@ export default abstract class BasicConvert {
 			width: thumbWidth,
 			height: thumbHeight
 		};
+	}
+
+	protected appendQualityArgs() {
+		if (!this.quality)
+			return;
+
+		const qualityMap = {
+			'low': {
+				'png': ['-colors', '255'],
+				'jpg': ['-quality', '20']
+			},
+			'normal': {
+			},
+			'high': {
+				'jpg': ['-quality', '100'],
+				'png': ['-quality', '100']
+			}
+		};
+
+		let extKey;
+		if (this.isThumbPng()) {
+			extKey = 'png';
+		} else if (this.isThumbJpeg()) {
+			extKey = 'jpg';
+		}
+
+		if (this.quality in qualityMap && extKey && extKey in qualityMap[this.quality]) {
+			//@ts-ignore
+			this.addCmdArgs(qualityMap[this.quality][extKey]);
+		}
+	}
+
+	protected appendGrayscaleArgs() {
+		this.addCmdArgs(['-colorspace', 'Gray']);
+	}
+
+	protected appendBlur() {
+		this.addCmdArgs(['-blur', `0x${this.blur}`]);
+	}
+
+	protected isThumbJpeg(): boolean {
+		return ['.jpg', '.jpeg'].includes(this.thumbExt);
+	}
+
+	protected isThumbPng(): boolean {
+		return ['.png'].includes(this.thumbExt);
+	}
+
+	protected	getJpgArgs() {
+		return [
+			'-interlace',
+			'JPEG',
+			'-sampling-factor',
+			'4:2:0'
+		];
 	}
 }
 

@@ -21,6 +21,17 @@ export async function getImgSize(imgPath: string): Promise<IImgSize> {
 	return out;
 }
 
+export async function getImgType(imgPath: string): Promise<string|null> {
+	const identifyRes = await identifyIM(['-verbose', imgPath]) as unknown as string;
+	const matchRes = identifyRes.match(/Mime type: (.+)/);
+
+	if (matchRes) {
+		return matchRes[1];
+	}
+
+	return null;
+}
+
 function extractDimension(result: string|undefined|null): Partial<IImgSize> {
 	const out: Partial<IImgSize> = {};
 

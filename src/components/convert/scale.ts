@@ -1,4 +1,3 @@
-import path from 'path';
 import BasicConvert from './basicConvert';
 import {promisify} from 'util';
 import imageMagick from 'node-imagemagick';
@@ -14,20 +13,32 @@ export default class ScaleConvert extends BasicConvert {
 		this.cmdArgs = [this.originalPath, '-auto-orient', '-strip'];
 
 		if (this.ratio && this.pad) {
-
+			const background = this.background || 'ffffff';
+			this.addCmdArgs(['-resize', `${this.thumbSize!.width}x${this.thumbSize!.height}\>`]);
+			this.addCmdArgs(['-size', `${this.thumbSize!.width}x${this.thumbSize!.height}`, `xc:#${background}`, '+swap', '-gravity', 'center']);
+			this.addCmdArgs(['-composite']);
 		} else if (this.ratio) {
-
+			this.addCmdArgs(['-resize', `${this.thumbSize!.width}x${this.thumbSize!.height}^\>`]);
+			this.addCmdArgs(['-gravity', 'center', '-extent', `${this.thumbSize!.width}x${this.thumbSize!.height}`]);
 		} else {
 			this.addCmdArgs(['-thumbnail', `${this.thumbSize!.width}x${this.thumbSize!.height}\>`]);
 		}
 
-		const ext = path.extname(this.originalPath).toLowerCase();
-		if (['.jpg', '.jpeg'].indexOf(ext) !== -1) {
+		if (this.isThumbJpeg()) {
 			this.addCmdArgs(this.getJpgArgs());
 		}
 
-		this.addCmdArgs(this.thumbPath);
+		if (this.quality)
+			this.appendQualityArgs();
 
+		if (this.grayscale)
+			this.appendGrayscaleArgs();
+
+		if (this.blur)
+			this.appendBlur();
+
+		this.addCmdArgs(this.thumbPath);
+		// console.log('--- this.cmdArgs ---', this.cmdArgs);
 		await convertIM(this.cmdArgs);
 		// console.log('originalSize:', this.originalSize);
 		// console.log('thumbSize:', this.thumbSize);
@@ -68,15 +79,6 @@ export default class ScaleConvert extends BasicConvert {
 				height: thumbHeight
 			};
 		}
-	}
-
-	protected	getJpgArgs() {
-		return [
-			'-interlace',
-			'JPEG',
-			'-sampling-factor',
-			'4:2:0'
-		];
 	}
 }
 
