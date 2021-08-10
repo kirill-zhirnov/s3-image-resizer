@@ -14,13 +14,16 @@ export default class ScaleConvert extends BasicConvert {
 
 		if (this.ratio && this.pad) {
 			const background = this.background || 'ffffff';
+			//eslint-disable-next-line
 			this.addCmdArgs(['-resize', `${this.thumbSize!.width}x${this.thumbSize!.height}\>`]);
 			this.addCmdArgs(['-size', `${this.thumbSize!.width}x${this.thumbSize!.height}`, `xc:#${background}`, '+swap', '-gravity', 'center']);
 			this.addCmdArgs(['-composite']);
 		} else if (this.ratio) {
+			//eslint-disable-next-line
 			this.addCmdArgs(['-resize', `${this.thumbSize!.width}x${this.thumbSize!.height}^\>`]);
 			this.addCmdArgs(['-gravity', 'center', '-extent', `${this.thumbSize!.width}x${this.thumbSize!.height}`]);
 		} else {
+			//eslint-disable-next-line
 			this.addCmdArgs(['-thumbnail', `${this.thumbSize!.width}x${this.thumbSize!.height}\>`]);
 		}
 

@@ -4,9 +4,9 @@ const rootPath = path.dirname(path.dirname(__filename));
 module.exports = {
 	apps: [
 		{
-			name: 'node-prod',
+			name: 'media-server-prod',
 			cwd: rootPath,
-			script: './dist/server.js',
+			script: './dist/index.js',
 			instances: 'max',
 			exec_mode: 'cluster'
 		}

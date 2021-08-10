@@ -15,7 +15,7 @@ export default class Thumbnail {
 	protected original?: IOriginalImg;
 	protected runtimePath: string;
 	protected s3Storage?: S3Storage;
-	protected useCache: boolean = true;
+	protected useCache: boolean;
 	protected backgroundPromises: Promise<any>[] = [];
 	protected quality?: TThumbQuality;
 	protected grayscale: boolean = false;
@@ -29,6 +29,7 @@ export default class Thumbnail {
 		protected mode: TThumbMode,
 		protected maxSize: number
 	) {
+		this.useCache = String(process.env.USE_CACHE) === 'true';
 		this.runtimePath = `${registry.get('rootPath')}/runtime`;
 	}
 

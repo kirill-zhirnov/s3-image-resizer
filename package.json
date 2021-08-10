@@ -8,6 +8,8 @@
   "private": true,
   "scripts": {
     "dev": "npx pm2-runtime ./.pm2/dev.config.js",
+		"build": "rm -rf ./dist/ && npx tsc --project tsconfig.json",
+		"lint": "npx eslint --ext .ts ./src/",
     "postinstall": "npx pm2 install typescript"
   },
   "dependencies": {

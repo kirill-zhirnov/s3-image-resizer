@@ -1,7 +1,6 @@
 import registry from 'simple-registry';
 import express, {Application, NextFunction, Request, Response} from 'express';
-import ThumbAction from "../actions/thumbAction";
-
+import ThumbAction from '../actions/thumbAction';
 
 export class ExpressBaker {
 	protected app: Application;
