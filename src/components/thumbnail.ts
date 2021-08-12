@@ -9,6 +9,8 @@ import ScaleConvert from './convert/scale';
 import {getImgType} from './imageUtils';
 
 const mkdir = promisify(fs.mkdir);
+const stat = promisify(fs.stat);
+const utimes = promisify(fs.utimes);
 
 export default class Thumbnail {
 	protected thumb?: IThumb;
@@ -36,7 +38,7 @@ export default class Thumbnail {
 	async getThumb(): Promise<IThumb> {
 		this.createThumbPath();
 		if (this.useCache && fs.existsSync(this.thumb!.absolutePath)) {
-			this.changeAtime(this.thumb!.absolutePath);
+			await this.changeAtime(this.thumb!.absolutePath);
 			return this.thumb!;
 		}
 
@@ -59,9 +61,9 @@ export default class Thumbnail {
 		return this.thumb!;
 	}
 
-	changeAtime(path: string) {
-		const {mtime} = fs.statSync(path);
-		fs.utimesSync(path, new Date(), mtime);
+	async changeAtime(path: string) {
+		const {mtime} = await stat(path);
+		await utimes(path, new Date(), mtime);
 	}
 
 	createThumbPath() {
@@ -155,9 +157,10 @@ export default class Thumbnail {
 	}
 
 	protected async downloadOriginalImg() {
-		if (this.useCache && fs.existsSync(this.original!.absolutePath))
-			this.changeAtime(this.original!.absolutePath);
+		if (this.useCache && fs.existsSync(this.original!.absolutePath)) {
+			await this.changeAtime(this.original!.absolutePath);
 			return;
+		}
 
 		const dir = path.dirname(this.original!.absolutePath);
 		if (!fs.existsSync(dir)) {
