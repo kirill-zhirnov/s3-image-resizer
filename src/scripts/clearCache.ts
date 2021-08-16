@@ -1,6 +1,6 @@
 import path from 'path';
 import commandLineArgs from 'command-line-args';
-import {deleteOldFiles} from './clearCache/deleteFiles';
+import {deleteOldFiles} from '../components/clearCache/deleteOldFiles';
 const options = commandLineArgs([
 	{
 		name: 'delay',
