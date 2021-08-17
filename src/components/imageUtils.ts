@@ -18,6 +18,11 @@ export async function getImgSize(imgPath: string): Promise<IImgSize> {
 	const autoOrientRes = await convertIM(['-auto-orient', imgPath, '-format', '%wx%h', 'info:']) as unknown as string;
 	Object.assign(out, extractDimension(autoOrientRes));
 
+	if (out.width === null || out.height === null) {
+		console.error('identify res:', identifyRes);
+		console.error('convert res:', identifyRes);
+	}
+
 	return out;
 }
 
