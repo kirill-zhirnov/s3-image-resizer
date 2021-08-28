@@ -28,14 +28,18 @@ function spawnProcess(process: string, args: string[]) {
 		});
 
 		result.on('close', (exit_code) => {
-			if (exit_code || errorAcc) {
+			if (errorAcc) {
 				reject({
 					exit_code,
 					process,
 					message: errorAcc || 'Unknown error'
 				});
 			} else {
-				resolve(dataAcc);
+				resolve({
+					exit_code,
+					process,
+					data: dataAcc
+				});
 			}
 		});
 	});
