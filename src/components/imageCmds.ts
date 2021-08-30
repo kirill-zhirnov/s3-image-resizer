@@ -1,14 +1,16 @@
 import {spawn} from 'child_process';
 
 const encoding = 'utf8';
-const identifyPath = process.env.IM_IDENTIFY || 'identify';
-const convertPath = process.env.IM_CONVERT || 'convert';
 
 export async function identifyIm(args: string[]) {
+	const identifyPath = process.env.IM_IDENTIFY || 'identify';
+
 	return spawnProcess(identifyPath, args);
 }
 
 export async function convertIm(args: string[]) {
+	const convertPath = process.env.IM_CONVERT || 'convert';
+
 	return spawnProcess(convertPath, args);
 }
 
@@ -33,7 +35,7 @@ function spawnProcess(process: string, args: string[]): Promise<IResponse> {
 			if (exit_code !== 0) {
 				reject({
 					exit_code,
-					process,
+					cmd: `${process} ${args.join(' ')}`,
 					stderr: errorAcc || 'Unknown error'
 				});
 			} else {
