@@ -9,15 +9,9 @@ export async function getImgSize(imgPath: string): Promise<IImgSize> {
 		height: null
 	};
 
-	const {data, stderr, exit_code} = await identifyIm(['-format', '%G-%[orientation]', imgPath]);
+	const {data} = await identifyIm(['-format', '%G-%[orientation]', imgPath]);
 	if (data) {
 		Object.assign(out, extractDimension(data));
-	}
-	if (stderr) {
-		console.error('Identify image error:', {
-			message: stderr,
-			exit_code
-		});
 	}
 
 	return out;

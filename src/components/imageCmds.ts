@@ -37,6 +37,13 @@ function spawnProcess(process: string, args: string[]): Promise<IResponse> {
 					stderr: errorAcc || 'Unknown error'
 				});
 			} else {
+				if (errorAcc) {
+					console.error('Identify image error on success:', {
+						errorAcc,
+						exit_code
+					});
+				}
+
 				resolve({
 					stderr: errorAcc,
 					exit_code,
