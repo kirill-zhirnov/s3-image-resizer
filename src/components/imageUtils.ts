@@ -1,10 +1,7 @@
-import {promisify} from 'util';
-import imageMagick from 'node-imagemagick';
+import {identifyIm} from './imageCmds';
 
-const identifyIM = promisify(imageMagick.identify);
-const convertIM = promisify(imageMagick.convert);
-
-const dimensionRegExp = /(\d+)x(\d+)/;
+const dimensionRegExp = /(\d+)x(\d+)-([a-zA-z]+)/;
+const rotatedStates = ['RightTop', 'LeftBottom'];
 
 export async function getImgSize(imgPath: string): Promise<IImgSize> {
 	const out: IImgSize = {
@@ -12,32 +9,33 @@ export async function getImgSize(imgPath: string): Promise<IImgSize> {
 		height: null
 	};
 
-	const identifyRes = await identifyIM(['-format', '%wx%h', imgPath]) as unknown as string;
-	Object.assign(out, extractDimension(identifyRes));
-
-	const autoOrientRes = await convertIM(['-auto-orient', imgPath, '-format', '%wx%h', 'info:']) as unknown as string;
-	Object.assign(out, extractDimension(autoOrientRes));
-
-	if (out.width === null || out.height === null) {
-		console.error('identify res:', identifyRes);
-		console.error('convert res:', identifyRes);
+	const {data} = await identifyIm(['-format', '%G-%[orientation]', imgPath]);
+	if (data) {
+		Object.assign(out, extractDimension(data));
 	}
 
 	return out;
 }
 
-export async function getImgType(imgPath: string): Promise<string|null> {
-	const identifyRes = await identifyIM(['-verbose', imgPath]) as unknown as string;
-	const matchRes = identifyRes.match(/Mime type: (.+)/);
+export async function getImgType(imgPath: string): Promise<string | null> {
+	const {data, stderr, exit_code} = await identifyIm(['-verbose', imgPath]);
+	const matchRes = data ? data.match(/Mime type: (.+)/) : null;
 
 	if (matchRes) {
 		return matchRes[1];
 	}
+	if (stderr) {
+		console.error('Get image type error:', {
+			message: stderr,
+			exit_code
+		});
+	}
+
 
 	return null;
 }
 
-function extractDimension(result: string|undefined|null): Partial<IImgSize> {
+function extractDimension(result: string | undefined | null): Partial<IImgSize> {
 	const out: Partial<IImgSize> = {};
 
 	if (!result) {
@@ -46,14 +44,18 @@ function extractDimension(result: string|undefined|null): Partial<IImgSize> {
 
 	const matchRes = String(result).match(dimensionRegExp);
 	if (matchRes) {
-		out.width = parseInt(matchRes[1]);
-		out.height = parseInt(matchRes[2]);
+		const isRotated = rotatedStates.includes(matchRes[3]);
+		const width = parseInt(matchRes[1]);
+		const height = parseInt(matchRes[2]);
+
+		out.width = isRotated ? height : width;
+		out.height = isRotated ? width : height;
 	}
 
 	return out;
 }
 
 export interface IImgSize {
-	width: number|null;
-	height: number|null;
+	width: number | null;
+	height: number | null;
 }
