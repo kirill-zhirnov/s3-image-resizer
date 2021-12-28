@@ -3,11 +3,12 @@ import Joi from 'joi';
 import HttpError from '../errors/httpError';
 import Thumbnail, {TThumbMode, TThumbQuality, TThumbRatio} from '../components/thumbnail';
 
-export default class ThumbAction extends BasicAction{
+export default class ThumbAction extends BasicAction {
 	async process() {
 		const params = this.validateParams();
 		const query = this.validateQuery();
 
+		const convertToWebp = this.request.headers.accept?.includes('image/webp');
 		const thumbnail = new Thumbnail(params.imgPath, query.mode, query['max-size']);
 		if (query.q)
 			thumbnail.setQuality(query.q);
@@ -26,6 +27,10 @@ export default class ThumbAction extends BasicAction{
 
 		if (query.bg)
 			thumbnail.setBackground(query.bg);
+
+		if(convertToWebp) {
+			thumbnail.setExtension('.webp');
+		}
 
 		const thumb = await thumbnail.getThumb();
 
