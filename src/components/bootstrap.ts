@@ -21,6 +21,9 @@ export class Bootstrap {
 			//@ts-ignore
 			imageMagick.identify.path = process.env.IM_IDENTIFY;
 		}
+
+		const runtimePath = process.env.RUNTIME_PATH ? process.env.RUNTIME_PATH : `${this.rootPath}/runtime`;
+		registry.set('runtimePath', runtimePath);
 	}
 }
 

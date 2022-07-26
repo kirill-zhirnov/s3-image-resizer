@@ -32,7 +32,7 @@ export default class Thumbnail {
 		protected maxSize: number
 	) {
 		this.useCache = String(process.env.USE_CACHE) === 'true';
-		this.runtimePath = `${registry.get('rootPath')}/runtime`;
+		this.runtimePath = registry.get('runtimePath');
 	}
 
 	async getThumb(): Promise<IThumb> {
