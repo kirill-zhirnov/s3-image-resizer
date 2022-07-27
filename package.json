@@ -7,11 +7,10 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "dev": "npx pm2-runtime ./.pm2/dev.config.js",
+		"dev": "npx nodemon",
     "build": "rm -rf ./dist/ && npx tsc --project tsconfig.json",
-		"start": "node ./dist/index.js",
-    "lint": "npx eslint --ext .ts ./src/",
-    "postinstall": "npx pm2 install typescript"
+    "start": "node ./dist/index.js",
+    "lint": "npx eslint --ext .ts ./src/"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.24.0",
@@ -26,7 +25,7 @@
     "express": "^4.17.1",
     "joi": "^17.4.2",
     "node-imagemagick": "^0.1.8",
-    "pm2": "^5.1.0",
+    "nodemon": "^2.0.19",
     "simple-registry": "^0.2.2",
     "ts-node": "^10.1.0",
     "typescript": "^4.3.5"
