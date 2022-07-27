@@ -29,7 +29,7 @@ export default class ThumbAction extends BasicAction{
 
 		const thumb = await thumbnail.getThumb();
 
-		// this.response.removeHeader('Cache-Control');
+		this.response.setHeader('Cache-Control', 'public, max-age=86400');
 		this.response.sendFile(thumb.absolutePath);
 
 		await Promise.all(thumbnail.getBackgroundPromises());

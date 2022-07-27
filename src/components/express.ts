@@ -26,15 +26,15 @@ export class ExpressBaker {
 	}
 
 	setupRoutes(): void {
-		this.app.get('/', (req: Request, res: Response, next: NextFunction) => {
-			res.send(`
-				<p>process.env.test: "${process.env.test}".</p>
-				<p>process.env.S3_KEY: "${process.env.S3_KEY}".</p>
-				<p>process.env.S3_REGION: "${process.env.S3_REGION}".</p>
-				<p>process.env.RUNTIME_PATH: "${process.env.RUNTIME_PATH}".</p>
-				<p>process.env.IM_CONVERT: "${process.env.IM_CONVERT}".</p>
-			`);
-		});
+		// this.app.get('/', (req: Request, res: Response, next: NextFunction) => {
+		// 	res.send(`
+		// 		<p>process.env.test: "${process.env.test}".</p>
+		// 		<p>process.env.S3_KEY: "${process.env.S3_KEY}".</p>
+		// 		<p>process.env.S3_REGION: "${process.env.S3_REGION}".</p>
+		// 		<p>process.env.RUNTIME_PATH: "${process.env.RUNTIME_PATH}".</p>
+		// 		<p>process.env.IM_CONVERT: "${process.env.IM_CONVERT}".</p>
+		// 	`);
+		// });
 		this.app.get('/thumb/:imgPath(*)', async (req: Request, res: Response, next: NextFunction) => {
 			const thumbAction = new ThumbAction(req, res, next);
 			await thumbAction.run();
