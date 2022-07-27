@@ -1,0 +1,9 @@
+name: boundless-media-server
+services:
+  - dockerfile_path: Dockerfile
+    github:
+      branch: master
+      deploy_on_push: true
+      repo: kirill-zhirnov/media-server
+    name: node
+    http_port: 3010
