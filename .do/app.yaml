@@ -7,10 +7,10 @@ services:
       repo: kirill-zhirnov/media-server
     name: node
     http_port: 3010
-cors:
-  allow_origins:
-    - regex: .*
-  allow_methods:
-    - get
-  max_age: 3600
-  allow_credentials: true
+    cors:
+      allow_origins:
+        - regex: *
+      allow_methods:
+        - get
+      max_age: 3600
+      allow_credentials: true

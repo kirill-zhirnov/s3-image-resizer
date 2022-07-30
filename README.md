@@ -43,3 +43,28 @@
 ```
 */30 * * * * npx ts-node ./src/scripts/clearCache.ts --delay=10
 ```
+
+# How to build with the Docker?
+
+- Билдим Имейдж:
+
+`docker build -t media-server:node .`
+
+- Проверяем, что имейдж есть в списке имейджей:
+
+`docker images | grep media`
+
+- Запускаем контейнер:
+
+`docker run -it --rm -p 3010:3010 media-server:node` 
+
+Контейнер буде доступе по адресу: http://localhost:3010
+
+- Если нужно подключится к контейнеру:
+
+`docker ps` - ищем нужные ID
+
+Подключаемся:
+
+`docker exec -it <ID> /bin/sh`
+
