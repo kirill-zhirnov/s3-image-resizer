@@ -9,8 +9,9 @@ services:
     http_port: 3010
     cors:
       allow_origins:
-        - regex: *
+        - regex: .*
       allow_methods:
         - get
+        - options
       max_age: 3600
       allow_credentials: true
