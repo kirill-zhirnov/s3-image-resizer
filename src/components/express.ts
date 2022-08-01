@@ -35,6 +35,8 @@ export class ExpressBaker {
 		// 		<p>process.env.IM_CONVERT: "${process.env.IM_CONVERT}".</p>
 		// 	`);
 		// });
+		this.app.get('/is-healthy', async (req: Request, res: Response) => res.send('yes'));
+
 		this.app.options('/thumb/:imgPath(*)', async (req: Request, res: Response, next: NextFunction) => {
 			res.setHeader('Allow', 'GET');
 			res.setHeader('Access-Control-Allow-Methods', 'GET');
