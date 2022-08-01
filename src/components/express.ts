@@ -35,6 +35,15 @@ export class ExpressBaker {
 		// 		<p>process.env.IM_CONVERT: "${process.env.IM_CONVERT}".</p>
 		// 	`);
 		// });
+		this.app.options('/thumb/:imgPath(*)', async (req: Request, res: Response, next: NextFunction) => {
+			res.setHeader('Allow', 'GET');
+			res.setHeader('Access-Control-Allow-Methods', 'GET');
+			res.setHeader('Access-Control-Allow-Headers', '*');
+			res.setHeader('Access-Control-Allow-Origin', '*');
+			res.setHeader('Access-Control-Max-Age', '86400');
+			res.send();
+		});
+
 		this.app.get('/thumb/:imgPath(*)', async (req: Request, res: Response, next: NextFunction) => {
 			const thumbAction = new ThumbAction(req, res, next);
 			await thumbAction.run();
