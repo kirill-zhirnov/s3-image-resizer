@@ -53,6 +53,8 @@ export default class Thumbnail {
 			return this.thumb!;
 		}
 
+		console.log('processing thumb!');
+
 		await this.downloadOriginalImg();
 		await this.makeThumb();
 
@@ -157,7 +159,7 @@ export default class Thumbnail {
 	}
 
 	protected async downloadOriginalImg() {
-		if (this.useCache && fs.existsSync(this.original!.absolutePath)) {
+		if (fs.existsSync(this.original!.absolutePath)) {
 			await this.changeAtime(this.original!.absolutePath);
 			return;
 		}
