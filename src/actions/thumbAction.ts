@@ -29,7 +29,10 @@ export default class ThumbAction extends BasicAction{
 
 		const thumb = await thumbnail.getThumb();
 
-		this.response.setHeader('Cache-Control', 'public, max-age=86400');
+		if (String(process.env.USE_CACHE) === 'true') {
+			this.response.setHeader('Cache-Control', 'public, max-age=86400');
+		}
+
 		this.response.setHeader('Access-Control-Allow-Origin', '*');
 		this.response.setHeader('Access-Control-Allow-Credentials', 'true');
 
