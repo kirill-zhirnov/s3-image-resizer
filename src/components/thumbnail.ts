@@ -4,19 +4,20 @@ import registry from 'simple-registry';
 import fs from 'fs';
 import os from 'os';
 import S3Storage, {IS3UploadProps} from './s3Storage';
-import HttpError from '../errors/httpError';
+// import HttpError from '../errors/httpError';
 import {promisify} from 'util';
 import ScaleConvert from './convert/scale';
 import {getImgType} from './imageUtils';
 import child_process from 'child_process';
 
 const mkdir = promisify(fs.mkdir);
-const stat = promisify(fs.stat);
-const utimes = promisify(fs.utimes);
+// const stat = promisify(fs.stat);
+// const utimes = promisify(fs.utimes);
 const mkdtemp = promisify(fs.mkdtemp);
-const copyFile = promisify(fs.copyFile);
+// const copyFile = promisify(fs.copyFile);
 const unlink = promisify(fs.unlink);
 const exec = promisify(child_process.exec);
+const rmdir = promisify(fs.rmdir);
 
 export default class Thumbnail {
 	protected thumb?: IThumb;
@@ -68,6 +69,7 @@ export default class Thumbnail {
 
 		if (this.original!.tempPath) {
 			this.backgroundPromises.push(unlink(this.original!.tempPath));
+			this.backgroundPromises.push(rmdir(path.dirname(this.original!.tempPath)));
 		}
 
 		// this.backgroundPromises.push(this.changeAtime(this.original!.absolutePath));
@@ -196,6 +198,7 @@ export default class Thumbnail {
 		const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'thumb-'));
 
 		this.original!.tempPath = `${tmpDir}/${path.basename(this.original!.absolutePath)}`;
+		//there might be a problem - on a big amount of parallels request node can copy only part of the file, don't know why.
 		// await copyFile(this.original!.absolutePath, this.original!.tempPath);
 		await exec(`cp ${this.original!.absolutePath} ${this.original!.tempPath}`);
 	}
