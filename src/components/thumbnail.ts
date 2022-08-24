@@ -41,8 +41,8 @@ export default class Thumbnail {
 
 	async getThumb(): Promise<IThumb> {
 		this.createThumbPath();
-		// this.useCache &&
-		if (fs.existsSync(this.thumb!.absolutePath)) {
+
+		if (this.useCache && fs.existsSync(this.thumb!.absolutePath)) {
 			await this.changeAtime(this.thumb!.absolutePath);
 			return this.thumb!;
 		}
