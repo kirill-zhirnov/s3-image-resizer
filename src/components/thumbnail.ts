@@ -2,6 +2,7 @@ import path from 'path';
 import {createHash} from 'crypto';
 import registry from 'simple-registry';
 import fs from 'fs';
+import os from 'os';
 import S3Storage, {IS3UploadProps} from './s3Storage';
 import HttpError from '../errors/httpError';
 import {promisify} from 'util';
@@ -11,6 +12,9 @@ import {getImgType} from './imageUtils';
 const mkdir = promisify(fs.mkdir);
 const stat = promisify(fs.stat);
 const utimes = promisify(fs.utimes);
+const mkdtemp = promisify(fs.mkdtemp);
+const copyFile = promisify(fs.copyFile);
+const unlink = promisify(fs.unlink);
 
 export default class Thumbnail {
 	protected thumb?: IThumb;
@@ -57,8 +61,12 @@ export default class Thumbnail {
 		// }
 
 		await this.downloadOriginalImg();
+		await this.copyOriginalToTmp();
 		await this.makeThumb();
 
+		if (this.original!.tempPath) {
+			await unlink(this.original!.tempPath);
+		}
 		// this.backgroundPromises.push(this.uploadThumb());
 
 		return this.thumb!;
@@ -120,7 +128,7 @@ export default class Thumbnail {
 	protected async makeThumb() {
 		switch (this.mode) {
 			case TThumbMode.scale: {
-				const scale = new ScaleConvert(this.original!.absolutePath, this.thumb!.absolutePath);
+				const scale = new ScaleConvert(this.original!.tempPath!, this.thumb!.absolutePath);
 				scale
 					.setMaxSize(this.maxSize)
 					.setQuality(this.quality)
@@ -179,6 +187,13 @@ export default class Thumbnail {
 		await this.getS3Storage().downloadFile(writeStream, this.original!.localPath);
 
 		// return finishPromise;
+	}
+
+	protected async copyOriginalToTmp() {
+		const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'thumb-'));
+
+		this.original!.tempPath = `${tmpDir}/${path.basename(this.original!.absolutePath)}`;
+		await copyFile(this.original!.absolutePath, this.original!.tempPath);
 	}
 
 	setRuntimePath(value: string) {
@@ -261,4 +276,5 @@ export interface IOriginalImg {
 	ext: string;
 	basePath: string;
 	absolutePath: string;
+	tempPath?: string;
 }

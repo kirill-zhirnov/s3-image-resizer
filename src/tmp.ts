@@ -16,7 +16,7 @@ import Thumbnail from './components/thumbnail';
 	// console.log(await thumbnail.getThumb());
 
 
-	for (const i of Array.from(Array(20).keys())) {
+	for (const i of Array.from(Array(30).keys())) {
 			const thumbnail = new Thumbnail(imgPath, mode, maxSize);
 			thumbnail.getThumb()
 				.then((res) => console.log('res:', res))
