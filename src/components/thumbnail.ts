@@ -8,6 +8,7 @@ import HttpError from '../errors/httpError';
 import {promisify} from 'util';
 import ScaleConvert from './convert/scale';
 import {getImgType} from './imageUtils';
+import child_process from 'child_process';
 
 const mkdir = promisify(fs.mkdir);
 const stat = promisify(fs.stat);
@@ -15,6 +16,7 @@ const utimes = promisify(fs.utimes);
 const mkdtemp = promisify(fs.mkdtemp);
 const copyFile = promisify(fs.copyFile);
 const unlink = promisify(fs.unlink);
+const exec = promisify(child_process.exec);
 
 export default class Thumbnail {
 	protected thumb?: IThumb;
@@ -43,11 +45,11 @@ export default class Thumbnail {
 		this.createThumbPath();
 
 		if (this.useCache && fs.existsSync(this.thumb!.absolutePath)) {
-			await this.changeAtime(this.thumb!.absolutePath);
+			// await this.changeAtime(this.thumb!.absolutePath);
 			return this.thumb!;
 		}
 
-		//don't use S3 cache, since there is a rates limits from S3:
+		//don't use S3 cache, since there is a rates limit from S3:
 		//
 		// const listObjects = await this.getS3Storage().listObjects(this.original!.basePath);
 		//
@@ -67,14 +69,16 @@ export default class Thumbnail {
 		if (this.original!.tempPath) {
 			// await unlink(this.original!.tempPath);
 		}
-		// this.backgroundPromises.push(this.uploadThumb());
+
+		// this.backgroundPromises.push(this.changeAtime(this.original!.absolutePath));
 
 		return this.thumb!;
 	}
 
 	async changeAtime(path: string) {
-		const {mtime} = await stat(path);
-		await utimes(path, new Date(), mtime);
+		await exec(`touch ${path}`);
+		// const {mtime} = await stat(path);
+		// await utimes(path, new Date(), mtime);
 	}
 
 	createThumbPath() {
@@ -194,11 +198,6 @@ export default class Thumbnail {
 
 		this.original!.tempPath = `${tmpDir}/${path.basename(this.original!.absolutePath)}`;
 		await copyFile(this.original!.absolutePath, this.original!.tempPath);
-	}
-
-	protected async touch(filePath: string)
-	{
-
 	}
 
 	setRuntimePath(value: string) {

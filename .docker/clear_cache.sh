@@ -1,1 +1,1 @@
-/usr/local/bin/node /home/node/app/dist/scripts/clearCache.js --delay=10
+/usr/local/bin/node /home/node/app/dist/scripts/clearCache.js --delay=120
