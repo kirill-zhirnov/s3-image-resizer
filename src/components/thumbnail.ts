@@ -197,7 +197,8 @@ export default class Thumbnail {
 		const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'thumb-'));
 
 		this.original!.tempPath = `${tmpDir}/${path.basename(this.original!.absolutePath)}`;
-		await copyFile(this.original!.absolutePath, this.original!.tempPath);
+		// await copyFile(this.original!.absolutePath, this.original!.tempPath);
+		await exec(`cp ${this.original!.absolutePath} ${this.original!.tempPath}`);
 	}
 
 	setRuntimePath(value: string) {
