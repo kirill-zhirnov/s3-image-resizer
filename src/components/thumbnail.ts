@@ -171,7 +171,7 @@ export default class Thumbnail {
 
 	protected async downloadOriginalImg() {
 		if (fs.existsSync(this.original!.absolutePath)) {
-			await this.changeAtime(this.original!.absolutePath);
+			// await this.changeAtime(this.original!.absolutePath);
 			return;
 		}
 
@@ -194,6 +194,11 @@ export default class Thumbnail {
 
 		this.original!.tempPath = `${tmpDir}/${path.basename(this.original!.absolutePath)}`;
 		await copyFile(this.original!.absolutePath, this.original!.tempPath);
+	}
+
+	protected async touch(filePath: string)
+	{
+
 	}
 
 	setRuntimePath(value: string) {
