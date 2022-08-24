@@ -68,8 +68,7 @@ export default class Thumbnail {
 		await this.makeThumb();
 
 		if (this.original!.tempPath) {
-			this.backgroundPromises.push(unlink(this.original!.tempPath));
-			this.backgroundPromises.push(rmdir(path.dirname(this.original!.tempPath)));
+			this.backgroundPromises.push(this.clearTmpDir());
 		}
 
 		// this.backgroundPromises.push(this.changeAtime(this.original!.absolutePath));
@@ -201,6 +200,11 @@ export default class Thumbnail {
 		//there might be a problem - on a big amount of parallels request node can copy only part of the file, don't know why.
 		// await copyFile(this.original!.absolutePath, this.original!.tempPath);
 		await exec(`cp ${this.original!.absolutePath} ${this.original!.tempPath}`);
+	}
+
+	protected async clearTmpDir() {
+		await unlink(this.original!.tempPath!);
+		await rmdir(path.dirname(this.original!.tempPath!));
 	}
 
 	setRuntimePath(value: string) {
