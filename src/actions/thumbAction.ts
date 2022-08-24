@@ -2,9 +2,14 @@ import BasicAction from './basicAction';
 import Joi from 'joi';
 import HttpError from '../errors/httpError';
 import Thumbnail, {TThumbMode, TThumbQuality, TThumbRatio} from '../components/thumbnail';
+import {performance} from 'perf_hooks';
+
+const thumbnailCreationMarker = 'thumb-creation';
 
 export default class ThumbAction extends BasicAction{
 	async process() {
+		performance.mark(thumbnailCreationMarker);
+
 		const params = this.validateParams();
 		const query = this.validateQuery();
 
@@ -35,6 +40,11 @@ export default class ThumbAction extends BasicAction{
 
 		this.response.setHeader('Access-Control-Allow-Origin', '*');
 		this.response.setHeader('Access-Control-Allow-Credentials', 'true');
+
+		const timing = performance.measure('processing time', thumbnailCreationMarker);
+		this.response.setHeader('Timing-Allow-Origin', '*');
+		//@ts-ignore
+		this.response.setHeader('Server-Timing', `thumb;dur=${timing.duration}`);
 
 		this.response.sendFile(thumb.absolutePath);
 

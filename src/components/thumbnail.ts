@@ -67,7 +67,7 @@ export default class Thumbnail {
 		await this.makeThumb();
 
 		if (this.original!.tempPath) {
-			// await unlink(this.original!.tempPath);
+			this.backgroundPromises.push(unlink(this.original!.tempPath));
 		}
 
 		// this.backgroundPromises.push(this.changeAtime(this.original!.absolutePath));
@@ -87,7 +87,6 @@ export default class Thumbnail {
 		const dirName = path.dirname(this.imgPath);
 
 		const suffix = this.createThumbNameSuffix().join('-');
-		// console.log('--- suffix', suffix);
 		const suffixHash = createHash('md5').update(suffix).digest('hex');
 
 		const thumbName = `${baseName}_${suffixHash}${ext}`;
