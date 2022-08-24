@@ -42,23 +42,23 @@ export default class Thumbnail {
 			return this.thumb!;
 		}
 
-		const listObjects = await this.getS3Storage().listObjects(this.original!.basePath);
-
-		if (!listObjects.Contents || !listObjects.Contents.find(({Key}) => Key === this.original!.localPath))
-			throw new HttpError('Image not found', 404);
-
-		const thumbOnS3 = listObjects.Contents.find(({Key}) => Key === this.thumb!.localPath);
-		if (this.useCache && thumbOnS3) {
-			await this.downloadThumb();
-			return this.thumb!;
-		}
-
-		console.log('processing thumb!');
+		//don't use S3 cache, since there is a rates limits from S3:
+		//
+		// const listObjects = await this.getS3Storage().listObjects(this.original!.basePath);
+		//
+		// if (!listObjects.Contents || !listObjects.Contents.find(({Key}) => Key === this.original!.localPath))
+		// 	throw new HttpError('Image not found', 404);
+		//
+		// const thumbOnS3 = listObjects.Contents.find(({Key}) => Key === this.thumb!.localPath);
+		// if (this.useCache && thumbOnS3) {
+		// 	await this.downloadThumb();
+		// 	return this.thumb!;
+		// }
 
 		await this.downloadOriginalImg();
 		await this.makeThumb();
 
-		this.backgroundPromises.push(this.uploadThumb());
+		// this.backgroundPromises.push(this.uploadThumb());
 
 		return this.thumb!;
 	}
@@ -111,6 +111,8 @@ export default class Thumbnail {
 		if (this.background)
 			suffix.push(`bg${this.background}`);
 
+		suffix.push(String(Math.random()));
+		console.log('suffix:', suffix);
 		return suffix;
 	}
 
@@ -159,7 +161,9 @@ export default class Thumbnail {
 	}
 
 	protected async downloadOriginalImg() {
+		console.log('--- in downloadOriginalImg');
 		if (fs.existsSync(this.original!.absolutePath)) {
+			console.log('--- original exists');
 			await this.changeAtime(this.original!.absolutePath);
 			return;
 		}
