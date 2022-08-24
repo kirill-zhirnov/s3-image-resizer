@@ -37,7 +37,8 @@ export default class Thumbnail {
 
 	async getThumb(): Promise<IThumb> {
 		this.createThumbPath();
-		if (this.useCache && fs.existsSync(this.thumb!.absolutePath)) {
+		// this.useCache &&
+		if (fs.existsSync(this.thumb!.absolutePath)) {
 			await this.changeAtime(this.thumb!.absolutePath);
 			return this.thumb!;
 		}
@@ -111,8 +112,8 @@ export default class Thumbnail {
 		if (this.background)
 			suffix.push(`bg${this.background}`);
 
-		suffix.push(String(Math.random()));
-		console.log('suffix:', suffix);
+		// suffix.push(String(Math.random()));
+		// console.log('suffix:', suffix);
 		return suffix;
 	}
 
@@ -161,9 +162,7 @@ export default class Thumbnail {
 	}
 
 	protected async downloadOriginalImg() {
-		console.log('--- in downloadOriginalImg');
 		if (fs.existsSync(this.original!.absolutePath)) {
-			console.log('--- original exists');
 			await this.changeAtime(this.original!.absolutePath);
 			return;
 		}
