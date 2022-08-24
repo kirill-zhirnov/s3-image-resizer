@@ -15,7 +15,12 @@ export default abstract class BasicAction {
 			if (e instanceof HttpError) {
 				this.response.status(e.status).send(e.message);
 			} else {
-				console.error(e);
+				let errorInfo = '\npath: ' + this.request.path + '\n';
+
+				const date = new Date();
+				errorInfo += 'date: ' + date;
+
+				console.error(e, errorInfo);
 				this.response.status(500).send('Error');
 			}
 		}
