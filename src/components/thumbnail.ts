@@ -65,7 +65,7 @@ export default class Thumbnail {
 		await this.makeThumb();
 
 		if (this.original!.tempPath) {
-			await unlink(this.original!.tempPath);
+			// await unlink(this.original!.tempPath);
 		}
 		// this.backgroundPromises.push(this.uploadThumb());
 
