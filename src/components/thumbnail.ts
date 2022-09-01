@@ -14,7 +14,7 @@ const mkdir = promisify(fs.mkdir);
 // const stat = promisify(fs.stat);
 // const utimes = promisify(fs.utimes);
 const mkdtemp = promisify(fs.mkdtemp);
-// const copyFile = promisify(fs.copyFile);
+const copyFile = promisify(fs.copyFile);
 const unlink = promisify(fs.unlink);
 const exec = promisify(child_process.exec);
 const rmdir = promisify(fs.rmdir);
@@ -50,7 +50,7 @@ export default class Thumbnail {
 			return this.thumb!;
 		}
 
-		//don't use S3 cache, since there is a rates limit from S3:
+		//don't use S3 cache, since there are rates limit from S3:
 		//
 		// const listObjects = await this.getS3Storage().listObjects(this.original!.basePath);
 		//
@@ -64,11 +64,11 @@ export default class Thumbnail {
 		// }
 
 		await this.downloadOriginalImg();
-		await this.copyOriginalToTmp();
+		// await this.copyOriginalToTmp();
 		await this.makeThumb();
 
-		if (this.original!.tempPath) {
-			this.backgroundPromises.push(this.clearTmpDir());
+		if (this.original!.actualFilePath != this.original!.absolutePath) {
+			this.backgroundPromises.push(this.copyOriginalFromTmpToAbsolute());
 		}
 
 		// this.backgroundPromises.push(this.changeAtime(this.original!.absolutePath));
@@ -132,7 +132,7 @@ export default class Thumbnail {
 	protected async makeThumb() {
 		switch (this.mode) {
 			case TThumbMode.scale: {
-				const scale = new ScaleConvert(this.original!.tempPath!, this.thumb!.absolutePath);
+				const scale = new ScaleConvert(this.original!.actualFilePath!, this.thumb!.absolutePath);
 				scale
 					.setMaxSize(this.maxSize)
 					.setQuality(this.quality)
@@ -174,7 +174,8 @@ export default class Thumbnail {
 	}
 
 	protected async downloadOriginalImg() {
-		if (fs.existsSync(this.original!.absolutePath)) {
+		if (this.useCache && fs.existsSync(this.original!.absolutePath)) {
+			this.original!.actualFilePath = this.original!.absolutePath;
 			// await this.changeAtime(this.original!.absolutePath);
 			return;
 		}
@@ -184,23 +185,43 @@ export default class Thumbnail {
 			await mkdir(dir, {recursive: true});
 		}
 
-		const writeStream = fs.createWriteStream(this.original!.absolutePath, {flags: 'w'});
-		// const finishPromise = new Promise<void>((resolve) => {
-		// 	writeStream.on('finish', () => resolve());
-		// });
+		const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'thumb-'));
+		this.original!.actualFilePath = `${tmpDir}/${path.basename(this.original!.absolutePath)}`;
+		this.original!.isActualPathTmp = true;
+		console.log('actualFilePath:', this.original!.actualFilePath);
+		const writeStream = fs.createWriteStream(this.original!.actualFilePath, {flags: 'w'});
 		await this.getS3Storage().downloadFile(writeStream, this.original!.localPath);
 
+		/*
+		const dir = path.dirname(this.original!.absolutePath);
+		if (!fs.existsSync(dir)) {
+			await mkdir(dir, {recursive: true});
+		}
+		const writeStream = fs.createWriteStream(this.original!.absolutePath, {flags: 'w'});
+		await this.getS3Storage().downloadFile(writeStream, this.original!.localPath);
+*/
 		// return finishPromise;
 	}
 
-	protected async copyOriginalToTmp() {
-		const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'thumb-'));
+	protected async copyOriginalFromTmpToAbsolute() {
+		if (!fs.existsSync(this.original!.absolutePath)) {
+			await copyFile(this.original!.actualFilePath!, this.original!.absolutePath, fs.constants.COPYFILE_FICLONE);
+		}
 
-		this.original!.tempPath = `${tmpDir}/${path.basename(this.original!.absolutePath)}`;
-		//there might be a problem - on a big amount of parallels request node can copy only part of the file, don't know why.
-		// await copyFile(this.original!.absolutePath, this.original!.tempPath);
-		await exec(`cp ${this.original!.absolutePath} ${this.original!.tempPath}`);
+		if (this.original!.isActualPathTmp === true) {
+			await unlink(this.original!.actualFilePath!);
+			await rmdir(path.dirname(this.original!.actualFilePath!));
+		}
 	}
+
+	// protected async copyOriginalToTmp() {
+	// 	const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'thumb-'));
+	//
+	// 	this.original!.tempPath = `${tmpDir}/${path.basename(this.original!.absolutePath)}`;
+	// 	//there might be a problem - on a big amount of parallels request node can copy only part of the file, don't know why.
+	// 	// await copyFile(this.original!.absolutePath, this.original!.tempPath);
+	// 	await exec(`cp ${this.original!.absolutePath} ${this.original!.tempPath}`);
+	// }
 
 	protected async clearTmpDir() {
 		await unlink(this.original!.tempPath!);
@@ -287,5 +308,11 @@ export interface IOriginalImg {
 	ext: string;
 	basePath: string;
 	absolutePath: string;
+	/**
+	 * Original file is downloaded to TMP folder to prevent parallels processes write to
+	 * the same file. In this case, actualFilePath point to the TMP path.
+	 */
+	actualFilePath?: string;
+	isActualPathTmp?: boolean;
 	tempPath?: string;
 }

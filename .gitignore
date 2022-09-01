@@ -5,4 +5,4 @@
 yarn-error.log
 yarn-debug.log
 .DS_Store
-#/src/tmp.ts
+/src/tmp.ts
