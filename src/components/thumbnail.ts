@@ -188,7 +188,7 @@ export default class Thumbnail {
 		const tmpDir = await mkdtemp(path.join(os.tmpdir(), 'thumb-'));
 		this.original!.actualFilePath = `${tmpDir}/${path.basename(this.original!.absolutePath)}`;
 		this.original!.isActualPathTmp = true;
-		console.log('actualFilePath:', this.original!.actualFilePath);
+
 		const writeStream = fs.createWriteStream(this.original!.actualFilePath, {flags: 'w'});
 		await this.getS3Storage().downloadFile(writeStream, this.original!.localPath);
 
