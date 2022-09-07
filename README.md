@@ -48,7 +48,7 @@
 
 - Билдим Имейдж:
 
-`docker build -t media-server:node .`
+`docker build -t media-server:node -f ./.docker/Dockerfile .`
 
 - Проверяем, что имейдж есть в списке имейджей:
 
@@ -71,3 +71,4 @@
 https://stackoverflow.com/questions/37015624/how-to-run-a-cron-job-inside-a-docker-container - 
 попробовать дописать /etc/crontabs/root во время билда
 
+docker compose -f ./.docker/compose-prod.yml up --scale node=2
