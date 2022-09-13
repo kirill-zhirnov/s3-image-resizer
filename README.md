@@ -68,7 +68,8 @@
 
 `docker exec -it <ID> /bin/sh`
 
-https://stackoverflow.com/questions/37015624/how-to-run-a-cron-job-inside-a-docker-container - 
-попробовать дописать /etc/crontabs/root во время билда
-
 docker compose -f ./.docker/compose-prod.yml up --scale node=2
+
+- убрать крон скрипты
+- общий volume
+- тест на digitalocean? cdn?

@@ -4,15 +4,12 @@ services:
       context: ../
       dockerfile: ./.docker/Dockerfile
     restart: always
-#    init: true
-#    ports:
-#      - "3010:3010"
 
   nginx:
     image: nginx:mainline-alpine
     ports:
       - "80:80"
-#    volumes:
-#      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - node
