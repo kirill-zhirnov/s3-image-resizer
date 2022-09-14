@@ -71,5 +71,6 @@
 docker compose -f ./.docker/compose-prod.yml up --scale node=2
 
 - убрать крон скрипты
+- Базовый запуск на DO
 - общий volume
 - тест на digitalocean? cdn?
