@@ -68,9 +68,25 @@
 
 `docker exec -it <ID> /bin/sh`
 
-docker compose -f ./.docker/compose-prod.yml up --scale node=2
+# How to start with docker compose on production?
 
-- убрать крон скрипты
-- Базовый запуск на DO
-- общий volume
+`docker compose --env-file .env -f ./.docker/compose-prod.yml up --scale node=2 -d`
+
+To update:
+
+`docker compose --env-file .env -f ./.docker/compose-prod.yml build`
+
+`docker compose --env-file .env -f ./.docker/compose-prod.yml up --scale node=2 -d`
+
+To down:
+
+`docker compose --env-file .env -f ./.docker/compose-prod.yml down`
+
+To test locally use this command:
+
+`docker compose --env-file .env -f ./.docker/compose-prod.yml up --build --scale node=2`
+
+You might need to set env variables `DOCKER_CACHE_VOLUME`, `RUNTIME_PATH` and `COMPOSE_PROJECT_NAME`.
+
+
 - тест на digitalocean? cdn?
