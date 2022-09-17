@@ -87,6 +87,3 @@ To test locally use this command:
 `docker compose --env-file .env -f ./.docker/compose-prod.yml up --build --scale node=2`
 
 You might need to set env variables `DOCKER_CACHE_VOLUME`, `RUNTIME_PATH` and `COMPOSE_PROJECT_NAME`.
-
-
-- тест на digitalocean? cdn?

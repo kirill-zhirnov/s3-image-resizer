@@ -1,6 +1,8 @@
 import registry from 'simple-registry';
 import express, {Application, NextFunction, Request, Response} from 'express';
 import ThumbAction from '../actions/thumbAction';
+import favicon from 'serve-favicon';
+import path from 'path';
 
 export class ExpressBaker {
 	protected app: Application;
@@ -13,6 +15,9 @@ export class ExpressBaker {
 	}
 
 	async make(): Promise<Application> {
+		this.app.disable('x-powered-by');
+		this.app.use(favicon(path.join(this.rootPath , 'assets/favicon.ico')));
+
 		this.setupRoutes();
 
 		return this.app;
