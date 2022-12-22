@@ -2,7 +2,7 @@ services:
   node:
     build:
       context: ../
-      dockerfile: ./.docker/Dockerfile
+      dockerfile: ./.docker/node-prod.Dockerfile
     restart: always
     volumes:
       - type: bind
@@ -10,12 +10,14 @@ services:
         target: /home/node/external_runtime
 
   nginx:
-    image: nginx:mainline-alpine
+    build:
+      context: ../
+      dockerfile: ./.docker/nginx-prod.Dockerfile
+      args:
+        DOCKER_NGINX_NODE_HOST: ${DOCKER_NGINX_NODE_HOST:-node}
     restart: always
     ports:
       - "${DOCKER_NGINX_OUT_PORT:-8080}:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - node
 
