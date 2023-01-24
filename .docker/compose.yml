@@ -2,8 +2,8 @@ services:
   node:
     build:
       context: ../
-      dockerfile: ./.docker/node-prod.Dockerfile
-    restart: always
+      dockerfile: ./.docker/node.Dockerfile
+    restart: unless-stopped
     volumes:
       - type: bind
         source: "${DOCKER_CACHE_VOLUME}"
@@ -12,10 +12,10 @@ services:
   nginx:
     build:
       context: ../
-      dockerfile: ./.docker/nginx-prod.Dockerfile
+      dockerfile: ./.docker/nginx.Dockerfile
       args:
         DOCKER_NGINX_NODE_HOST: ${DOCKER_NGINX_NODE_HOST:-node}
-    restart: always
+    restart: unless-stopped
     ports:
       - "${DOCKER_NGINX_OUT_PORT:-8080}:80"
     depends_on:
