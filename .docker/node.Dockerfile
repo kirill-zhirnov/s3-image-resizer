@@ -1,4 +1,4 @@
-FROM node:16-alpine as builder
+FROM node:18-alpine
 RUN apk add --update --no-cache file imagemagick
 
 #COPY ./.docker/cronjobs /etc/crontabs/root

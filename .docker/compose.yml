@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     volumes:
       - type: bind
-        source: "${DOCKER_CACHE_VOLUME}"
+        source: "${DOCKER_CACHE_VOLUME:-../runtime}"
         target: /home/node/external_runtime
 
   nginx:

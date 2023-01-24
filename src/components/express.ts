@@ -26,7 +26,7 @@ export class ExpressBaker {
 	async run(): Promise<void> {
 		await this.make();
 
-		const PORT: number = process.env.PORT as unknown as number || 3010;
+		const PORT: number = process.env.PORT as unknown as number || 3000;
 		this.app.listen(PORT, () => console.log(`Worker started at: ${PORT}!`));
 	}
 

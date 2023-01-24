@@ -71,16 +71,18 @@
 # How to start with docker compose on production?
 
 `docker compose --env-file .env -f ./.docker/compose-prod.yml up --scale node=2 -d`
+`docker compose --env-file .env -f ./.docker/compose.yml up --scale node=2 -d`
 
 To update:
 
 `docker compose --env-file .env -f ./.docker/compose-prod.yml build`
+`docker compose --env-file .env -f ./.docker/compose.yml build`
 
-`docker compose --env-file .env -f ./.docker/compose-prod.yml up --scale node=2 -d`
+`docker compose --env-file .env -f ./.docker/compose.yml up --scale node=2 -d`
 
 To down:
 
-`docker compose --env-file .env -f ./.docker/compose-prod.yml down`
+`docker compose --env-file .env -f ./.docker/compose.yml down`
 
 To test locally use this command:
 
