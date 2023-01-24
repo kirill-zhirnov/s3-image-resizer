@@ -1,91 +1,68 @@
-# S3 Image resizer
+# Optimize and resize images in S3 on the fly (Crop and Thumbnail)
 
-Библиотека ресайзит (и выполняет различные манипуляции) с изображениями, 
-хранящимися на S3.
+This is a service which generates thumbnails for S3 images in real time. 
+It is a Node JS server, which fetches a source image from a S3 server, reads resize options from the URL, 
+generate thumbnail and returns to a client.
 
-# Опции ресайза:
+The service is ready to be launched with Docker. Under the hood, it uses Imagick as a resize engine.
 
-`http://localhost:3010/thumb/<Локальный путь на S3>?mode=scale&max-size=500`
+## Resize options
 
-Уменьшит картинку до 500px.
+`http://localhost:3000/thumb/<local path on the S3>?mode=scale&max-size=500` - generates a thumbnail with max size 500px.
 
-## Модификаторы:
+### Query params:
 
-`mode=scale` (required) - режим преобразования. Возможные значения: `scale`.
+`mode=scale` (**required**) - Mode. Currently, it supports only one mode - `scale`.
 
-`max-size=N` (required) - N - максимальный размер. `max-size` считается по большему
-значению ширины/высоты. Если ширина больше высоты - то для расчета берется ширина.
+`max-size=N` (**required**) - Where `N` is a maximum size (`INT`). The size is calculated by the greatest value of width 
+or height. E.g. if the width is greater than the height - the width will be used for the size calculation.
 
-`q=low|normal|high` - качество. Разные форматы поддерживают разные режими качества. 
-К примеру, png - только low, остальные параметры трактуются как normal.
+`q=low|normal|high` - Quality. Different formats support different quality modes. If a format doesn't support a quality 
+parameter - the `normal` value will be used (so you can pass it regardless of format).
 
-`ratio=1-1|2-3|3-2|4-5|5-4|3-4|4-3|16-9|9-16` - соотношение сторон. Картинка обрезается,
-если не помещается в пропорцию.
+`ratio=1-1|2-3|3-2|4-5|5-4|3-4|4-3|16-9|9-16` - Aspect ratio. An image will be cropped if necessary. If you want you 
+can specify `pad` (see below) to use a pad resizer strategy.
 
-`pad=1` - если задано `ratio`, то вместо обрезки изображения, картинка уменьшается, 
-до тех пор, пока полностью не поместится в заданную пропорцию. Лишнее место закрашивается
-белым цветом, если не задан `bg`.
+`pad=1` - if the `ratio` is specified you can add the `pad` - in this case an image is scaled down to fit in a shape. 
+Empty spaces are filled with `bg` color (white by default).
 
-`bg=hex` - цвет фона - hex код без решетки, 6 символов, например: `ffffff` (см. `pad`).
+`bg=hex` - background color (If the `pad` strategy is used.) - HEX code - 6 symbols, e.g.: `ffffff`
 
-`grayscale=1` - сделает изображение черно-белым.
+`grayscale=1` - Makes an image grayscale.
 
-`blur=N`, - где N от 0 до 15 - заблюрить изображение. Чем больше значение N - тем более
-размыто изображение.
+`blur=N`, - Blur. N is in the range of 0-15, where 15 gets the maximum blurred effect.
 
-# Скрипты:
+## How to run with the Docker?
 
-1. Очистка кэша изображений, к которым обращались более чем N минут назад:
-`npx ts-node ./src/scripts/clearCache.ts --delay=<N в минутах>`
+1. Copy `.env.example` to `.env`
+2. Fill S3 credentials and **uncomment** `RUNTIME_PATH`
+3. `docker compose --env-file .env -f ./.docker/compose.yml up --scale node=2 -d` - it runs service on `8080` port.
+4. To update: `docker compose --env-file .env -f ./.docker/compose.yml build` - builds images, then run: `docker compose --env-file .env -f ./.docker/compose.yml up --scale node=2 -d`
+5. To down: `docker compose --env-file .env -f ./.docker/compose.yml down`
 
-# Cron
 
-```
-*/30 * * * * npx ts-node ./src/scripts/clearCache.ts --delay=10
-```
+## How to start locally?
 
-# How to build with the Docker?
+1. Copy `.env.example` to `.env`
+2. Fill S3 credentials.
+3. Specify paths to Imagick: `IM_CONVERT` and `IM_IDENTIFY`. You might also need to adjust `PORT`.
+4. Change `NODE_ENV=development`
+5. Install dependencies: `yarn install`
+6. `yarn dev`
 
-- Билдим Имейдж:
+## How to clear cache folder?
 
-`docker build -t media-server:node -f ./.docker/Dockerfile .`
+You might need to clear cache folder:
 
-- Проверяем, что имейдж есть в списке имейджей:
+`node ./build/scripts/clearCache.ts --delay=<N minutes>` 
 
-`docker images | grep media`
+Or ts version: `npx ts-node ./src/scripts/clearCache.ts --delay=<delay>`
 
-- Запускаем контейнер:
+---
 
-`docker run -it --rm -p 3010:3010 media-server:node` 
+![Boundless-commerce.com](assets/logo.svg)
 
-Контейнер буде доступе по адресу: http://localhost:3010
+[Boundless-commerce.com](https://boundless-commerce.com/) - API’s First Headless E-commerce CMS: We Provide An
+Admin-Side For Store Management, Powerful API, And Ready-To-Use Checkout Area.
 
-- Если нужно подключится к контейнеру:
-
-`docker ps` - ищем нужные ID
-
-Подключаемся:
-
-`docker exec -it <ID> /bin/sh`
-
-# How to start with docker compose on production?
-
-`docker compose --env-file .env -f ./.docker/compose-prod.yml up --scale node=2 -d`
-`docker compose --env-file .env -f ./.docker/compose.yml up --scale node=2 -d`
-
-To update:
-
-`docker compose --env-file .env -f ./.docker/compose-prod.yml build`
-`docker compose --env-file .env -f ./.docker/compose.yml build`
-
-`docker compose --env-file .env -f ./.docker/compose.yml up --scale node=2 -d`
-
-To down:
-
-`docker compose --env-file .env -f ./.docker/compose.yml down`
-
-To test locally use this command:
-
-`docker compose --env-file .env -f ./.docker/compose-prod.yml up --build --scale node=2`
-
-You might need to set env variables `DOCKER_CACHE_VOLUME`, `RUNTIME_PATH` and `COMPOSE_PROJECT_NAME`.
+[Free NextJS eCommerce templates](https://boundless-commerce.com/templates) - Free. Ready to use. Just clone & deploy!
