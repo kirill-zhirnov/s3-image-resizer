@@ -40,6 +40,9 @@ export default class ScaleConvert extends BasicConvert {
 		if (this.blur)
 			this.appendBlur();
 
+		if(this.extension)
+			this.appendExtensionArgs();
+
 		this.addCmdArgs(this.thumbPath);
 		// console.log('--- this.cmdArgs ---', this.cmdArgs);
 		await convertIM(this.cmdArgs);

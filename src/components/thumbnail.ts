@@ -32,6 +32,7 @@ export default class Thumbnail {
 	protected blur?: number;
 	protected ratio?: TThumbRatio;
 	protected background?: string;
+	protected extension?: string
 
 	constructor(
 		protected imgPath: string,
@@ -83,7 +84,7 @@ export default class Thumbnail {
 	}
 
 	createThumbPath() {
-		const ext = path.extname(this.imgPath);
+		const ext = this.extension || path.extname(this.imgPath);
 		const baseName = path.basename(this.imgPath, ext);
 		const dirName = path.dirname(this.imgPath);
 
@@ -141,6 +142,7 @@ export default class Thumbnail {
 					.setRatio(this.ratio)
 					.setPad(this.pad)
 					.setBackground(this.background)
+					.setExtension(this.extension)
 				;
 				await scale.make();
 			}
@@ -272,6 +274,11 @@ export default class Thumbnail {
 
 	setBackground(value: string) {
 		this.background = value;
+		return this;
+	}
+
+	setExtension(value: string) {
+		this.extension = value;
 		return this;
 	}
 }

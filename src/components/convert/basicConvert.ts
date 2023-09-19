@@ -12,6 +12,7 @@ export default abstract class BasicConvert {
 	protected pad: boolean = false;
 	protected grayscale: boolean = false;
 	protected blur?: number;
+	protected extension?: string;
 
 	protected originalSize?: IImgSize;
 	protected thumbSize?: IImgSize;
@@ -72,6 +73,11 @@ export default abstract class BasicConvert {
 
 	setBlur(value: number|undefined) {
 		this.blur = value;
+		return this;
+	}
+
+	setExtension(value?: string) {
+		this.extension = value;
 		return this;
 	}
 
@@ -153,6 +159,12 @@ export default abstract class BasicConvert {
 			'-sampling-factor',
 			'4:2:0'
 		];
+	}
+
+	protected appendExtensionArgs() {
+		if(this.extension === '.webp') {
+			return this.addCmdArgs(['-define', 'webp:lossless=true']);
+		}
 	}
 }
 
