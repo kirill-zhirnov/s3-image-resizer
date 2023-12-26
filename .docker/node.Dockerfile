@@ -17,5 +17,3 @@ COPY --chown=node:node . .
 RUN yarn build
 
 CMD ["yarn", "start"]
-
-#EXPOSE 3010
