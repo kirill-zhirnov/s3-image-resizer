@@ -1,5 +1,5 @@
 FROM node:18-alpine
-RUN apk add --update --no-cache file imagemagick
+RUN apk add --update --no-cache jpeg file imagemagick
 
 #COPY ./.docker/cronjobs /etc/crontabs/root
 #ADD ./.docker/start.sh /root/start.sh
